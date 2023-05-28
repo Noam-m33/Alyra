@@ -5,6 +5,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 pragma solidity >=0.8.3;
 
 contract Voting is Ownable {
+    error WorkflowNotRespected();
+    error AddressAlreadyRegistered(address);
+
     event VoterRegistered(address voterAddress);
     event WorkflowStatusChange(
         WorkflowStatus previousStatus,
@@ -32,7 +35,7 @@ contract Voting is Ownable {
         uint voteCount;
     }
 
-    uint winningProposalId;
+    uint public winningProposalId;
     mapping(address => Voter) voters;
     WorkflowStatus public currentStatus;
     Proposal[] proposals;
@@ -47,50 +50,56 @@ contract Voting is Ownable {
 
     function whitelistAddresses(address[] memory _addresses) public onlyOwner {
         for (uint i; i < _addresses.length; i++) {
-            emit VoterRegistered(_addresses[i]);
+            if (voters[_addresses[i]].isRegistered == true) {
+                revert AddressAlreadyRegistered(_addresses[i]);
+            }
             whitelistedAddresses.push(_addresses[i]);
             voters[_addresses[i]] = Voter(true, false, 0);
+            emit VoterRegistered(_addresses[i]);
         }
     }
 
+    function changeWorkflow(WorkflowStatus from, WorkflowStatus to) internal {
+        if (from != currentStatus) {
+            revert WorkflowNotRespected();
+        }
+        currentStatus = to;
+        emit WorkflowStatusChange(from, to);
+    }
+
     function startProposalSession() public onlyOwner {
-        require(
-            currentStatus == WorkflowStatus.RegisteringVoters,
-            "Voting workflow is not respected"
+        changeWorkflow(
+            WorkflowStatus.RegisteringVoters,
+            WorkflowStatus.ProposalsRegistrationStarted
         );
-        currentStatus = WorkflowStatus.ProposalsRegistrationStarted;
     }
 
     function endProposalSession() public onlyOwner {
-        require(
-            currentStatus == WorkflowStatus.ProposalsRegistrationStarted,
-            "Voting workflow is not respected"
+        changeWorkflow(
+            WorkflowStatus.ProposalsRegistrationStarted,
+            WorkflowStatus.ProposalsRegistrationEnded
         );
-        currentStatus = WorkflowStatus.ProposalsRegistrationEnded;
     }
 
     function startVoteSession() public onlyOwner {
-        require(
-            currentStatus == WorkflowStatus.ProposalsRegistrationEnded,
-            "Voting workflow is not respected"
+        changeWorkflow(
+            WorkflowStatus.ProposalsRegistrationEnded,
+            WorkflowStatus.VotingSessionStarted
         );
-        currentStatus = WorkflowStatus.VotingSessionStarted;
     }
 
     function endVoteSession() public onlyOwner {
-        require(
-            currentStatus == WorkflowStatus.VotingSessionStarted,
-            "Voting workflow is not respected"
+        changeWorkflow(
+            WorkflowStatus.VotingSessionStarted,
+            WorkflowStatus.VotingSessionEnded
         );
-        currentStatus = WorkflowStatus.VotingSessionEnded;
     }
 
     function startVoteTailledSession() public onlyOwner {
-        require(
-            currentStatus == WorkflowStatus.VotingSessionEnded,
-            "Voting workflow is not respected"
+        changeWorkflow(
+            WorkflowStatus.VotingSessionEnded,
+            WorkflowStatus.VotesTallied
         );
-        currentStatus = WorkflowStatus.VotesTallied;
     }
 
     function submitProposal(string memory description) public onlyWhitelisted {
@@ -111,6 +120,7 @@ contract Voting is Ownable {
             revert("already voted");
         }
         voters[msg.sender].votedProposalId = proposalId;
+        voters[msg.sender].hasVoted = true;
         emit Voted(msg.sender, proposalId);
     }
 
