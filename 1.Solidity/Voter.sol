@@ -108,7 +108,7 @@ contract Voting is Ownable {
             "Proposal registeration has not started"
         );
         proposals.push(Proposal(description, 0));
-        emit ProposalRegistered(proposals.length + 1);
+        emit ProposalRegistered(proposals.length - 1);
     }
 
     function voting(uint proposalId) public onlyWhitelisted {
