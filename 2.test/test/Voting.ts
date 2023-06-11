@@ -1,4 +1,4 @@
-import { artifacts, ethers } from "hardhat";
+import { ethers } from "hardhat";
 import { expect } from "chai";
 import { Voting, Voting__factory } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
