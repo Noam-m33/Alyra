@@ -48,34 +48,21 @@ const data = [
   },
 ];
 
-export function ArenaList() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { address, isConnected } = useAccount();
+interface ArenaListProps {
+  setDisplayForm: (value: boolean) => void;
+}
+
+export function ArenaList({ setDisplayForm }: ArenaListProps) {
+  const { isConnected } = useAccount();
   return (
     <Stack>
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <Text>Modal body</Text>
-          </ModalBody>
-          <ModalFooter>
-            <Button variant={"ghost"} mr={3} onClick={() => setIsOpen(false)}>
-              Close
-            </Button>
-            <Button colorScheme="blue">Create arena</Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
       <Stack direction={"row"} justifyContent={"space-between"}>
         <Text fontSize={"2xl"} fontWeight={"bold"}>
           Arenas List ({data.length})
         </Text>
         <Button
           disabled={!isConnected}
-          onClick={() => setIsOpen(true)}
+          onClick={() => setDisplayForm(true)}
           variant={"outline"}
         >
           Create a new Arena

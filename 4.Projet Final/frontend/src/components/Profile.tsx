@@ -14,9 +14,9 @@ export function Profile() {
   if (isConnected) {
     return (
       <Stack>
-        <Card p={2}>
+        <Card p={2.5}>
           <Stack direction={"row"} alignItems={"center"}>
-            <Image height={10} width={10} src={MetamaskImage} />
+            <Image height={7} width={7} src={MetamaskImage} />
             <Text fontWeight={"semibold"} fontSize={"md"}>
               Connected with {address?.slice(0, 6)}...{address?.slice(-4)}{" "}
             </Text>
@@ -39,7 +39,7 @@ export function Profile() {
           key={connector.id}
           onClick={() => connect({ connector })}
         >
-          <Image height={10} width={10} src={MetamaskImage} />
+          <Image height={7} width={7} src={MetamaskImage} />
           Connect with {connector.name}
           {!connector.ready && " (unsupported)"}
           {isLoading &&

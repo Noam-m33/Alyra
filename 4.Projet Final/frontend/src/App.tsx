@@ -4,7 +4,7 @@ import { Box, ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { config } from "./wagmi.config";
 import theme from "./theme";
 import { MainLayout } from "./layouts/main";
-import { ArenaList } from "./components/Arenas/List";
+import ArenaPages from "./components/Arenas";
 
 function App() {
   return (
@@ -13,7 +13,7 @@ function App() {
       <WagmiConfig config={config}>
         <MainLayout>
           <Box mt={10}>
-            <ArenaList />
+            <ArenaPages />
           </Box>
         </MainLayout>
       </WagmiConfig>

@@ -12,7 +12,7 @@ export default function Header() {
         width={"100%"}
       >
         <Text fontSize={"4xl"} fontWeight={"bold"}>
-          Gamble Arena
+          🏟️ Gamble Arena
         </Text>
         <Profile />
       </Stack>
