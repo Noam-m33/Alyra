@@ -10,47 +10,81 @@ contract Arena {
     }
 
     struct PlayerBet {
-        uint id;
+        uint fixtureId;
         BetProno prono;
     }
 
     uint public entryCost;
-    mapping(address => bool) public player;
+    mapping(address => bool) public registeredPlayers;
+    mapping(address => PlayerBet[]) public playersBets;
+    bool public isPrivate;
     Fixture[] public games;
     ArenaStatus public status;
-    address[] public winners;
-    
+    mapping(address => bool) public winners;
+
 
     enum ArenaStatus { Open, Closed, Finished }
     enum BetStatus { Open, Closed, Finished }
     enum FixtureResult { Pending, Home,Draw, Away, Cancelled }
-    enum BetProno { Home,Draw, Away }
+    enum BetProno { None, Home, Draw, Away }
 
-
-    constructor(uint _entryCost, uint[] memory fixturesId) {
+    constructor(uint _entryCost, uint[] memory fixturesIds) {
+        require(fixturesIds.length > 0 || fixturesIds.length < 50, "Provide between 1 and 50 fixtures");
         entryCost = _entryCost;
         
-        for (uint8 i = 0; i < fixturesId.length; i++) {
+        for (uint8 i = 0; i < fixturesIds.length; i++) {
             games.push(Fixture({
-                id: fixturesId[i],
+                id: fixturesIds[i],
                 status: BetStatus.Open,
                 result: FixtureResult.Pending
             }));
         }
     }
 
-    function bet(uint fixtureId, ) public payable {
-        require(status == ArenaStatus.Open, "Arena is closed");
-        require(msg.value == entryCost, "Entry cost is not correct");
-        require(result >= 1 && result <= 3, "Result is not correct");
-        require(!player[msg.sender], "You already bet");
+    modifier onlyRegistered() {
+        require(registeredPlayers[msg.sender], "You must be registered to perform this action");
+        _;
+    }
 
-        player[msg.sender] = true;
-        games[fixtureId].status = BetStatus.Closed;
-        games[fixtureId].result = FixtureResult(result);
+    function register() public payable onlyRegistered {
+        require(!registeredPlayers[msg.sender], "You are already registered");
+        require(msg.value == entryCost, "You must pay the correct entry cost");
+        registeredPlayers[msg.sender] = true;
+    }
+
+    function placeBets(PlayerBet[] memory pronos) external onlyRegistered() {
+        require(registeredPlayers[msg.sender], "You must be registered to place bets");
+        for(uint8 i = 0; i < pronos.length; i++) {
+            require(games[pronos[i].fixtureId].status == BetStatus.Open, "You can only bet on open fixtures");
+            games[pronos[i].fixtureId].status = BetStatus.Closed;
+        }
     }
 
 
+    function setResult() public {
+        // call the oracle to get the result
+        // set the result
+        // set the status to finished
+    }
 
+    function setWinners() public view returns (bool) {
+        for(uint8 i = 0; i < games.length; i++) {
+            // call the oracle to get the result
+            if(games[i].result == FixtureResult.Home) {
+                return true;
+            }
+        }
+        return true;
+    }
 
+    function payoutWinner() external onlyRegistered() {
+        require(status == ArenaStatus.Finished, "You can only payout when the arena is finished");
+        require(registeredPlayers[msg.sender], "You must be registered to payout");
+        if(status != ArenaStatus.Finished){
+            setResult();
+            setWinners();
+        }
+        require(winners[msg.sender], "You are not a winner");
+        // pay the winner;
+    }
 }
