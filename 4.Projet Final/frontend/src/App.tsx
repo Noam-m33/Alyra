@@ -1,13 +1,23 @@
 import { WagmiConfig } from "wagmi";
 import "./App.css";
+import { Box, ChakraProvider, ColorModeScript } from "@chakra-ui/react";
 import { config } from "./wagmi.config";
-import { Profile } from "./components/Profile";
+import theme from "./theme";
+import { MainLayout } from "./layouts/main";
+import { ArenaList } from "./components/Arenas/List";
 
 function App() {
   return (
-    <WagmiConfig config={config}>
-      <Profile />
-    </WagmiConfig>
+    <ChakraProvider theme={theme}>
+      <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+      <WagmiConfig config={config}>
+        <MainLayout>
+          <Box mt={10}>
+            <ArenaList />
+          </Box>
+        </MainLayout>
+      </WagmiConfig>
+    </ChakraProvider>
   );
 }
 

@@ -1,40 +1,54 @@
-import React from "react";
+import { Button } from "@chakra-ui/button";
+import { Image } from "@chakra-ui/image";
+import { Stack, Text } from "@chakra-ui/layout";
+import MetamaskImage from "../assets/metamask.png";
 import { useConnect, useAccount, useDisconnect } from "wagmi";
+import { Card } from "@chakra-ui/card";
 
 export function Profile() {
-  const { address, connector, isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const { connect, connectors, error, isLoading, pendingConnector } =
     useConnect();
   const { disconnect } = useDisconnect();
 
   if (isConnected) {
     return (
-      <div>
-        <div>
-          Connected with {address?.slice(0, 6)}...{address?.slice(-4)}{" "}
-        </div>
-        <button onClick={() => disconnect()}>Disconnect</button>
-      </div>
+      <Stack>
+        <Card p={2}>
+          <Stack direction={"row"} alignItems={"center"}>
+            <Image height={10} width={10} src={MetamaskImage} />
+            <Text fontWeight={"semibold"} fontSize={"md"}>
+              Connected with {address?.slice(0, 6)}...{address?.slice(-4)}{" "}
+            </Text>
+            <Button size={"sm"} onClick={() => disconnect()}>
+              Disconnect
+            </Button>
+          </Stack>
+        </Card>
+      </Stack>
     );
   }
 
   return (
-    <div>
+    <Stack>
       {connectors.map((connector) => (
-        <button
+        <Button
+          p={6}
+          gap={3}
           disabled={!connector.ready}
           key={connector.id}
           onClick={() => connect({ connector })}
         >
+          <Image height={10} width={10} src={MetamaskImage} />
           Connect with {connector.name}
           {!connector.ready && " (unsupported)"}
           {isLoading &&
             connector.id === pendingConnector?.id &&
             " (connecting)"}
-        </button>
+        </Button>
       ))}
 
       {error && <div>{error.message}</div>}
-    </div>
+    </Stack>
   );
 }
