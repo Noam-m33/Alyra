@@ -1,11 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Arena {
+contract Arena is ERC721URIStorage {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
+
+    enum ArenaStatus { Open, Closed, GamesEnded, ClaimSessionOpen }
+    enum FixtureState { Pending, Cancelled, Ended }
+    enum BetProno { None, Home, Draw, Away }
+
+    event BetPlaced(address player, PlayerBet[] pronos);
+    event GamesEnded();
+    event WinnersSet(uint8[] winners);
+
     struct Fixture {
         uint id;
-        FixtureResult result;
+        FixtureState state;
+        BetProno winningProno;
     }
 
     struct PlayerBet {
@@ -13,85 +27,105 @@ contract Arena {
         BetProno prono;
     }
 
-    struct Player {
-        address player;
-        PlayerBet[] pronos;
-    }
-
     uint public entryCost;
-    Player[] public registeredPlayers;
+    mapping(uint => PlayerBet[]) public playersBets;
     bool public isPrivate;
     Fixture[] public games;
     ArenaStatus public status;
-    address[] public winners;
+    uint8[] public winners;
 
-    enum ArenaStatus { Open, Closed, Finished }
-    enum FixtureResult { Pending, Home,Draw, Away, Cancelled }
-    enum BetProno { None, Home, Draw, Away }
-
-    event BetPlaced(address player, PlayerBet[] pronos);
-    event ArenaFinished();
-
-    constructor(uint _entryCost, uint[] memory fixturesIds) {
+    constructor(uint _entryCost, uint[] memory fixturesIds) ERC721("Arena", "ARENA") {
         require(fixturesIds.length > 0 && fixturesIds.length < 10, "Provide between 1 and 10 fixtures");
         entryCost = _entryCost;
         
         for (uint8 i = 0; i < fixturesIds.length; i++) {
             games.push(Fixture({
                 id: fixturesIds[i],
-                result: FixtureResult.Pending
+                state: FixtureState.Pending,
+                winningProno: BetProno.None
             }));
         }
     }
 
-    modifier onlyRegistered() {
+    modifier onlyCurrentNFTOwner(uint8 tokenId) {
+        require(ownerOf(tokenId) == msg.sender, "You must own the token to place bets");
         _;
     }
 
     function register() public payable {
-        //require(!registeredPlayers[msg.sender], "You are already registered");
         require(msg.value == entryCost, "You must pay the correct entry cost");
-        registeredPlayers[msg.sender] = true;
+        _tokenIds.increment();
+        _safeMint(msg.sender, _tokenIds.current());
     }
 
-    function placeBets(PlayerBet[] calldata pronos) external onlyRegistered() {
+    function placeBets(PlayerBet[] memory pronos, uint8 tokenId) external onlyCurrentNFTOwner(tokenId) {
         require(pronos.length == games.length, "You must bet on all fixtures");
         require(status == ArenaStatus.Open, "You can only place bets when the arena is open");
-        registeredPlayers[msg.sender].address = pronos;
+        for (uint8 i = 0; i < pronos.length; i++) {
+            require(pronos[i].fixtureId == games[i].id, "The fixture id does not match");
+            require(pronos[i].prono != BetProno.None, "You must bet on all fixtures");
+            playersBets[tokenId].push(PlayerBet({
+                fixtureId: pronos[i].fixtureId,
+                prono: pronos[i].prono
+            }));
+        }
         emit BetPlaced(msg.sender, pronos);
     }
 
-
-    function setFixturesResult(Fixture[] calldata fixturesResult) external {
+    function setFixturesResult(Fixture[] memory fixturesResult) external {
         require(status != ArenaStatus.Closed, "You can only set the result if the arena is not finished");
-        require(registeredPlayers[msg.sender], "You must be registered to set the result");
+        require(fixturesResult.length == games.length, "You must set the result for all fixtures");
         for(uint8 i = 0; i < fixturesResult.length; i++) {
+            require(fixturesResult[i].state != FixtureState.Pending, "You must set the result for all fixtures");
             require(fixturesResult[i].id == games[i].id, "The fixture id does not match");
-            games[i].result = fixturesResult[i].result;
+            games[i].winningProno = fixturesResult[i].winningProno;
+            games[i].state = fixturesResult[i].state;
         }
-        status = ArenaStatus.Finished;
+        status = ArenaStatus.GamesEnded;
         
-        emit ArenaFinished();
+        emit GamesEnded();
 
     }
 
-    function setWinners() public view returns (bool) {
+    function setWinners() public {
+        uint8[] memory scores;
         for(uint8 i = 0; i < games.length; i++) {
-            if(games[i].result == FixtureResult.Home) {
-                return true;
+            if(games[i].state == FixtureState.Ended) {
+                for(uint tokenId = 1; i == _tokenIds.current(); i++) {
+                    if(playersBets[tokenId][i].fixtureId == games[i].id) {
+                        if(
+                            playersBets[tokenId][i].prono == games[i].winningProno                  
+                        ){
+                            scores[tokenId]++;
+                        }
+                    } else {
+                        revert("The fixture id does not match");
+                    }
+                }
             }
         }
-        return true;
+        uint8 largestScore;
+        uint8[] memory memoryWinners;
+        for(uint8 i = 0; i < scores.length; i++) {
+            if(scores[i] > largestScore) {
+                largestScore = scores[i];
+                uint8[] memory newWinner;
+                newWinner[0] = i + 1;
+                memoryWinners = newWinner;
+            } else if(scores[i] == largestScore) {
+                memoryWinners[i] = i +1;
+            }
+        }
+        winners = memoryWinners;
+        status = ArenaStatus.ClaimSessionOpen;
+        emit WinnersSet(memoryWinners);
     }
 
-    function payoutWinner() external onlyRegistered() {
-        require(status == ArenaStatus.Finished, "You can only payout when the arena is finished");
-        require(registeredPlayers[msg.sender], "You must be registered to payout");
-        if(status != ArenaStatus.Finished){
+    function claim(uint8 tokenId) external onlyCurrentNFTOwner(tokenId)  {
+        if(status == ArenaStatus.GamesEnded){
             setWinners();
         }
-        for(uint8 i = 0; i < winners.length; i++) {
-            payable(winners[i]).transfer((entryCost * registeredPlayers.length) / winners.length);
-        }
+        require(status == ArenaStatus.ClaimSessionOpen, "You can only payout when the claim session is open");
+        payable(ownerOf(tokenId)).transfer((entryCost * _tokenIds.current()) / winners.length);
     }
 }
