@@ -9,8 +9,15 @@ import {
   ModalHeader,
   ModalOverlay,
 } from "@chakra-ui/modal";
-import { useState } from "react";
-import { useAccount } from "wagmi";
+import { useEffect, useState } from "react";
+import {
+  useAccount,
+  useContractRead,
+  useContractReads,
+  useContractWrite,
+  usePublicClient,
+} from "wagmi";
+import { arenaFactoryAbi } from "../../utils/abi";
 
 const data = [
   {
@@ -54,6 +61,39 @@ interface ArenaListProps {
 
 export function ArenaList({ setDisplayForm }: ArenaListProps) {
   const { isConnected } = useAccount();
+  const publicClient = usePublicClient({ chainId: 31337 });
+  const { data: arenasCount } = useContractRead({
+    address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    abi: arenaFactoryAbi,
+    functionName: "arenaCount",
+  });
+  const [arenas, setArenas] = useState([]);
+
+  function getArenaAddress(index: number) {
+    return publicClient.readContract({
+      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      abi: arenaFactoryAbi,
+      functionName: "getArena",
+      args: [index],
+    });
+  }
+
+  useEffect(() => {
+    if (!arenasCount) return;
+    const arenasCountFormatted = parseInt(arenasCount as string);
+    let arenas = [];
+    const promises = new Array(arenasCountFormatted).map((index) => {
+      console.log(index);
+      getArenaAddress(index);
+    });
+    Promise.all(promises).then((values) => {
+      values.forEach((value) => {
+        arenas.push(value);
+      });
+    });
+    setArenas(arenas);
+  }, [arenasCount]);
+
   return (
     <Stack>
       <Stack direction={"row"} justifyContent={"space-between"}>
