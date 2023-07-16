@@ -10,27 +10,15 @@ contract ArenasFactory {
     event PlayerRegistered(address player, uint arenaId);
     event ArenaCreated(uint arenaId);
  
-    function createArena(uint _entryCost, uint[] memory fixturesId) public returns (Arena) {
-        Arena arena = new Arena(_entryCost, fixturesId);
+    function createArena(uint _entryCost, uint[] memory fixturesId, bool _isPrivate) public returns (Arena) {
+        Arena arena = new Arena(_entryCost, fixturesId, _isPrivate, msg.sender);
         arenaCount++;
         arenas[arenaCount] = arena;
         emit ArenaCreated(arenaCount);
         return arena;
     }
 
-    function counterMagic(uint number) public returns (uint) {
-        arenaCount = arenaCount + number;
-        emit ArenaCreated(arenaCount);
-        return arenaCount;
-    }
-
     function getArena(uint id) public view returns (Arena) {
         return arenas[id];
-    }
-
-    function registerPlayer(uint arenaId) external payable {
-        Arena arena = arenas[arenaId];
-        arena.register{value: msg.value}();
-        emit PlayerRegistered(msg.sender, arenaId);
     }
 }

@@ -2,10 +2,9 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Arena is ERC721URIStorage, ReentrancyGuard {
+contract Arena is ERC721URIStorage {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -16,6 +15,7 @@ contract Arena is ERC721URIStorage, ReentrancyGuard {
     event BetPlaced(address player, PlayerBet[] pronos);
     event GamesEnded();
     event WinnersSet(uint8[] winners);
+    event AddressWhitelisted(address);
 
     struct Fixture {
         uint id;
@@ -31,13 +31,17 @@ contract Arena is ERC721URIStorage, ReentrancyGuard {
     uint public entryCost;
     mapping(uint => PlayerBet[]) public playersBets;
     bool public isPrivate;
+    mapping(address => bool) public whitelistedAddresses;
     Fixture[] public games;
     ArenaStatus public status;
     uint8[] public winners;
+    address public creator;
 
-    constructor(uint _entryCost, uint[] memory fixturesIds) ERC721("Arena", "ARENA") {
+    constructor(uint _entryCost, uint[] memory fixturesIds, bool _isPrivate, address _creator) ERC721("Arena", "ARENA") {
         require(fixturesIds.length > 0 && fixturesIds.length < 10, "Provide between 1 and 10 fixtures");
         entryCost = _entryCost;
+        isPrivate = _isPrivate;
+        creator = _creator;
         
         for (uint8 i = 0; i < fixturesIds.length; i++) {
             games.push(Fixture({
@@ -53,14 +57,46 @@ contract Arena is ERC721URIStorage, ReentrancyGuard {
         _;
     }
 
+    modifier onlyCreator(){
+        require(msg.sender == creator, "Restricted to creator");
+        _;
+    }
+        
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 firstTokenId,
+        uint256 batchSize
+    ) internal override  {
+        if(_exists(firstTokenId)){
+            require(isPrivate == false , "Cannot transfer when arena is private");
+        }
+        super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
+    }
+
     function getArenaInfosData() public view returns (uint, uint, ArenaStatus, uint8[] memory, Fixture[] memory) {
         return (entryCost, _tokenIds.current() ,status, winners, games);
     }
 
+    function whitelistAddressForPrivateArena(address[] memory _addresses, bool _bool) external onlyCreator {
+        require(isPrivate, "You should whitelist address only on private arena");
+        for (uint8 i = 0; i < _addresses.length; i++) {
+            whitelistedAddresses[_addresses[i]] = _bool;
+            emit AddressWhitelisted(_addresses[i]);
+        }
+    }
+
     function register() public payable {
         require(msg.value == entryCost, "You must pay the correct entry cost");
+        if(isPrivate){
+            require(whitelistedAddresses[msg.sender] == true, "not whitelisted");
+        }
         _tokenIds.increment();
         _safeMint(msg.sender, _tokenIds.current());
+    }
+
+    function closeArena() public onlyCreator {
+        status = ArenaStatus.Closed;
     }
 
     function placeBets(PlayerBet[] memory pronos, uint8 tokenId) external onlyCurrentNFTOwner(tokenId) {
@@ -89,6 +125,7 @@ contract Arena is ERC721URIStorage, ReentrancyGuard {
         status = ArenaStatus.GamesEnded;
         
         emit GamesEnded();
+
     }
 
     function setWinners() public {
@@ -125,7 +162,7 @@ contract Arena is ERC721URIStorage, ReentrancyGuard {
         emit WinnersSet(memoryWinners);
     }
 
-    function claim(uint8 tokenId) external onlyCurrentNFTOwner(tokenId) nonReentrant() {
+    function claim(uint8 tokenId) external onlyCurrentNFTOwner(tokenId)  {
         if(status == ArenaStatus.GamesEnded){
             setWinners();
         }
