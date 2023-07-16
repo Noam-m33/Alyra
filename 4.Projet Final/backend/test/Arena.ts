@@ -18,7 +18,7 @@ describe("Arena", function () {
   let addr2: SignerWithAddress;
 
   async function deployArena(
-    cost = 10000,
+    cost: BigNumber | number = 10000,
     pokemons = [1, 2],
     isPrivate = false
   ) {
@@ -311,12 +311,13 @@ describe("Arena", function () {
   });
 
   it("should not be able to claim if the nft is not a winner", async function () {
-    await deployArena();
+    await deployArena(BigNumber.from("1000000000000000000"));
+    const initialBalance = await owner.getBalance();
     await arenaContract.register({
-      value: 10000,
+      value: BigNumber.from("1000000000000000000"),
     });
     await arenaContract.connect(addr2).register({
-      value: 10000,
+      value: BigNumber.from("1000000000000000000"),
     });
     console.log(await arenaContract.ownerOf(2), addr2.address);
     await arenaContract.placeBets(
@@ -343,6 +344,7 @@ describe("Arena", function () {
     await expect(arenaContract.connect(addr2).claim(2)).to.be.revertedWith(
       "You are not a winner"
     );
+    await expect((await owner.getBalance()).gt(initialBalance)).to.be.true;
   });
 
   // ------- END CLAIM ---------
