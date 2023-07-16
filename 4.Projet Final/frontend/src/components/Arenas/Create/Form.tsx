@@ -11,26 +11,35 @@ import {
 } from "wagmi";
 import { arenaFactoryAbi } from "../../../utils/abi";
 import { useState } from "react";
+import { useToast } from "@chakra-ui/toast";
+import { ethers } from "ethers";
 
 export default function Form() {
-  const [transaction, setTransaction] = useState<any>(null); // [1
+  const toast = useToast();
   const { register, handleSubmit } = useForm();
   const { data, write } = useContractWrite({
     address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     abi: arenaFactoryAbi,
     functionName: "createArena",
     onSuccess: (data: any) => {
-      console.log(data, "success");
-      setTransaction(data.hash);
+      toast({
+        title: "Success",
+        description: "You have successfully created the arena",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
     },
     onError: (error: any) => {
-      console.log(error, "error");
+      toast({
+        title: "Error",
+        description: error.message,
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
     },
   });
-
-  const { data: dat2 } = useTransaction({
-    hash: transaction,
-  }); // [2]
 
   useContractEvent({
     address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
@@ -43,9 +52,11 @@ export default function Form() {
   });
 
   const onSubmit = (data: any) => {
-    console.log(parseInt(data.price));
+    const entryCostFormatted = ethers.utils
+      .parseEther(data.price.toString())
+      .toString();
     write({
-      args: [parseInt(data.price), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]],
+      args: [Number(entryCostFormatted), [1, 2, 3]],
     });
   };
 
@@ -79,7 +90,7 @@ export default function Form() {
           <FormControl>
             <FormLabel>Entry Cost 💰</FormLabel>
             <Input
-              type="number"
+              type="text"
               placeholder="Entry Cost"
               {...register("price")}
             />

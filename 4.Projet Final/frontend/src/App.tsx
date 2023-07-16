@@ -5,17 +5,20 @@ import { config } from "./wagmi.config";
 import theme from "./theme";
 import { MainLayout } from "./layouts/main";
 import ArenaPages from "./components/Arenas";
+import { ArenasProvider } from "./context/Arenas";
 
 function App() {
   return (
     <ChakraProvider theme={theme}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <WagmiConfig config={config}>
-        <MainLayout>
-          <Box mt={10}>
-            <ArenaPages />
-          </Box>
-        </MainLayout>
+        <ArenasProvider>
+          <MainLayout>
+            <Box mt={10}>
+              <ArenaPages />
+            </Box>
+          </MainLayout>
+        </ArenasProvider>
       </WagmiConfig>
     </ChakraProvider>
   );

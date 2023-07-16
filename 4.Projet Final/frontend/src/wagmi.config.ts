@@ -9,6 +9,8 @@ const { chains, publicClient, webSocketPublicClient } = configureChains(
   [publicProvider()]
 );
 
+console.log("hi from wagmi.config.ts");
+
 // Set up wagmi config
 export const config = createConfig({
   autoConnect: true,

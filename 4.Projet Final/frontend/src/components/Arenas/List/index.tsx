@@ -1,5 +1,5 @@
 import { Button } from "@chakra-ui/button";
-import { List, ListItem, Stack, Text } from "@chakra-ui/layout";
+import { List, ListItem, SimpleGrid, Stack, Text } from "@chakra-ui/layout";
 import {
   Modal,
   ModalBody,
@@ -12,12 +12,17 @@ import {
 import { useEffect, useState } from "react";
 import {
   useAccount,
+  useContractEvent,
   useContractRead,
   useContractReads,
   useContractWrite,
   usePublicClient,
 } from "wagmi";
-import { arenaFactoryAbi } from "../../utils/abi";
+import { arenaFactoryAbi } from "../../../utils/abi";
+import { ethers } from "ethers";
+import { decodeEventLog, parseAbiItem } from "viem";
+import { useArenas } from "../../../context/Arenas";
+import CardItem from "./CardItem";
 
 const data = [
   {
@@ -62,43 +67,13 @@ interface ArenaListProps {
 export function ArenaList({ setDisplayForm }: ArenaListProps) {
   const { isConnected } = useAccount();
   const publicClient = usePublicClient({ chainId: 31337 });
-  const { data: arenasCount } = useContractRead({
-    address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    abi: arenaFactoryAbi,
-    functionName: "arenaCount",
-  });
-  const [arenas, setArenas] = useState([]);
-
-  function getArenaAddress(index: number) {
-    return publicClient.readContract({
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-      abi: arenaFactoryAbi,
-      functionName: "getArena",
-      args: [index],
-    });
-  }
-
-  useEffect(() => {
-    if (!arenasCount) return;
-    const arenasCountFormatted = parseInt(arenasCount as string);
-    let arenas = [];
-    const promises = new Array(arenasCountFormatted).map((index) => {
-      console.log(index);
-      getArenaAddress(index);
-    });
-    Promise.all(promises).then((values) => {
-      values.forEach((value) => {
-        arenas.push(value);
-      });
-    });
-    setArenas(arenas);
-  }, [arenasCount]);
-
+  const { arenas, loadings, arenaCount } = useArenas();
+  console.log(loadings);
   return (
     <Stack>
       <Stack direction={"row"} justifyContent={"space-between"}>
         <Text fontSize={"2xl"} fontWeight={"bold"}>
-          Arenas List ({data.length})
+          Arenas List ({arenaCount || (loadings.arenas ? "Loading..." : 0)})
         </Text>
         <Button
           disabled={!isConnected}
@@ -108,13 +83,17 @@ export function ArenaList({ setDisplayForm }: ArenaListProps) {
           Create a new Arena
         </Button>
       </Stack>
-      <List>
-        {data.map((arena) => (
-          <ListItem key={arena.id}>
-            <Text>{arena.name}</Text>
-          </ListItem>
-        ))}
-      </List>
+      {arenas.length ? (
+        <SimpleGrid columns={2} gap={3} mt={3}>
+          {arenas.map((arena, i) => (
+            <CardItem key={i} contract={arena} />
+          ))}
+        </SimpleGrid>
+      ) : (
+        <Text fontSize={"xl"} fontWeight={"bold"}>
+          {loadings.arenas ? "Loading..." : "No arenas found"}
+        </Text>
+      )}
     </Stack>
   );
 }
