@@ -2,9 +2,10 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 
-contract Arena is ERC721URIStorage {
+contract Arena is ERC721URIStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _tokenIds;
 
@@ -52,6 +53,10 @@ contract Arena is ERC721URIStorage {
         _;
     }
 
+    function getArenaInfosData() public view returns (uint, uint, ArenaStatus, uint8[] memory, Fixture[] memory) {
+        return (entryCost, _tokenIds.current() ,status, winners, games);
+    }
+
     function register() public payable {
         require(msg.value == entryCost, "You must pay the correct entry cost");
         _tokenIds.increment();
@@ -84,7 +89,6 @@ contract Arena is ERC721URIStorage {
         status = ArenaStatus.GamesEnded;
         
         emit GamesEnded();
-
     }
 
     function setWinners() public {
@@ -121,7 +125,7 @@ contract Arena is ERC721URIStorage {
         emit WinnersSet(memoryWinners);
     }
 
-    function claim(uint8 tokenId) external onlyCurrentNFTOwner(tokenId)  {
+    function claim(uint8 tokenId) external onlyCurrentNFTOwner(tokenId) nonReentrant() {
         if(status == ArenaStatus.GamesEnded){
             setWinners();
         }

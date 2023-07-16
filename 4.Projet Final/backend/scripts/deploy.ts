@@ -1,11 +1,14 @@
-import { ethers } from "hardhat";
+import { Z_ASCII } from "zlib";
+
+const hre = require("hardhat");
 
 async function main() {
-  const arenaFactory = await ethers.deployContract("ArenasFactory");
+  const ArenasFactory = await hre.ethers.getContractFactory("ArenasFactory");
+  const ArenasFactoryContract = await ArenasFactory.deploy();
 
-  await arenaFactory.waitForDeployment();
+  await ArenasFactoryContract.deployed();
 
-  console.log(`deploy successfully to ${arenaFactory.target}`);
+  console.log(`ArenasFactory deployed to ${ArenasFactoryContract.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
