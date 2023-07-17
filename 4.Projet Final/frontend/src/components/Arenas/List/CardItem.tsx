@@ -54,6 +54,10 @@ export default function CardItem({ contract }: { contract: ArenaType }) {
       }}
       width={"100%"}
     >
+      <Text fontWeight={"semibold"}>
+        {contract.name}{" "}
+        {account.address === contract.creator && "(You are the creator)"}
+      </Text>
       <Text>{contract.address}</Text>
       <Text>Number of games: {contract.games.length}</Text>
       <Text>
@@ -73,9 +77,15 @@ export default function CardItem({ contract }: { contract: ArenaType }) {
         <Button>
           <Text>View Details 👀</Text>
         </Button>
-        <Button onClick={() => write()} colorScheme="green">
-          <Text>Join 🔥</Text>
-        </Button>
+        {contract.isPrivate ? (
+          <Button disabled>
+            <Text>🔒 Private</Text>
+          </Button>
+        ) : (
+          <Button onClick={() => write()} colorScheme="green">
+            <Text>Join 🔥</Text>
+          </Button>
+        )}
       </Stack>
     </Stack>
   );

@@ -68,6 +68,7 @@ export function ArenaList({ setDisplayForm }: ArenaListProps) {
   const { isConnected } = useAccount();
   const publicClient = usePublicClient({ chainId: 31337 });
   const { arenas, loadings, arenaCount } = useArenas();
+  console.log(arenas);
   console.log(loadings);
   return (
     <Stack>

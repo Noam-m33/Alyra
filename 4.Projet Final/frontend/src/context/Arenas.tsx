@@ -39,6 +39,7 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
     functionName: "arenaCount",
     watch: true,
   });
+  console.log(arenasCountNotFormatted);
 
   useEffect(() => {
     if (BigNumber.from(arenasCountNotFormatted as string).toNumber() === 0) {
@@ -100,12 +101,24 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
           functionName: "getArenaInfosData",
         })
         .then((e) => {
-          const [entryCost, participantsNumber, status, winners, games] = e as [
+          const [
+            entryCost,
+            participantsNumber,
+            status,
+            winners,
+            games,
+            name,
+            creator,
+            isPrivate,
+          ] = e as [
             BigNumber,
             BigNumber,
             number,
             BigNumber[],
-            Array<{ id: BigNumber; state: number; winningProno: number }>
+            Array<{ id: BigNumber; state: number; winningProno: number }>,
+            string,
+            string,
+            boolean
           ];
           console.log(Number(utils.formatEther(entryCost)));
           const data: Omit<ArenaType, "address"> = {
@@ -118,6 +131,9 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
               state: e.state,
               winningProno: e.winningProno,
             })),
+            name,
+            creator,
+            isPrivate,
           };
           setArenas((prev) => [...prev, { address, ...data }]);
         })

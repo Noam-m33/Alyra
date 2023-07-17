@@ -21,7 +21,7 @@ export default function CreateArena({ setDisplayForm }: CreateArenaProps) {
           <Text>Go back</Text>
         </Stack>
         <Stack width={"80%"} justifyContent={"center"}>
-          <Text fontSize={"lg"} fontWeight={"bold"}>
+          <Text fontSize={"xl"} fontWeight={"bold"}>
             Create Arena
           </Text>
         </Stack>

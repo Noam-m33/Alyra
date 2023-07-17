@@ -4,6 +4,19 @@ export const arenaFactoryAbi = [
     inputs: [
       {
         indexed: false,
+        internalType: "uint256",
+        name: "arenaId",
+        type: "uint256",
+      },
+    ],
+    name: "ArenaCreated",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
         internalType: "address",
         name: "player",
         type: "address",
@@ -43,9 +56,25 @@ export const arenaFactoryAbi = [
         name: "fixturesId",
         type: "uint256[]",
       },
+      {
+        internalType: "bool",
+        name: "_isPrivate",
+        type: "bool",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
     ],
     name: "createArena",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "contract Arena",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },
@@ -68,19 +97,6 @@ export const arenaFactoryAbi = [
     stateMutability: "view",
     type: "function",
   },
-  {
-    inputs: [
-      {
-        internalType: "uint256",
-        name: "arenaId",
-        type: "uint256",
-      },
-    ],
-    name: "registerPlayer",
-    outputs: [],
-    stateMutability: "payable",
-    type: "function",
-  },
 ];
 
 export const arenaAbi = [
@@ -96,9 +112,37 @@ export const arenaAbi = [
         name: "fixturesIds",
         type: "uint256[]",
       },
+      {
+        internalType: "bool",
+        name: "_isPrivate",
+        type: "bool",
+      },
+      {
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "_creator",
+        type: "address",
+      },
     ],
     stateMutability: "nonpayable",
     type: "constructor",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "AddressWhitelisted",
+    type: "event",
   },
   {
     anonymous: false,
@@ -202,6 +246,25 @@ export const arenaAbi = [
   },
   {
     anonymous: false,
+    inputs: [
+      {
+        indexed: false,
+        internalType: "address",
+        name: "_addr",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "tokenId",
+        type: "uint256",
+      },
+    ],
+    name: "Claimed",
+    type: "event",
+  },
+  {
+    anonymous: false,
     inputs: [],
     name: "GamesEnded",
     type: "event",
@@ -276,6 +339,19 @@ export const arenaAbi = [
     type: "function",
   },
   {
+    inputs: [],
+    name: "arenaName",
+    outputs: [
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -305,6 +381,26 @@ export const arenaAbi = [
     name: "claim",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "closeArena",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "creator",
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
@@ -413,6 +509,21 @@ export const arenaAbi = [
         internalType: "struct Arena.Fixture[]",
         name: "",
         type: "tuple[]",
+      },
+      {
+        internalType: "string",
+        name: "",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
       },
     ],
     stateMutability: "view",
@@ -607,6 +718,25 @@ export const arenaAbi = [
   {
     inputs: [
       {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    name: "scores",
+    outputs: [
+      {
+        internalType: "uint8",
+        name: "",
+        type: "uint8",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
         internalType: "address",
         name: "operator",
         type: "address",
@@ -744,6 +874,43 @@ export const arenaAbi = [
     name: "transferFrom",
     outputs: [],
     stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address[]",
+        name: "_addresses",
+        type: "address[]",
+      },
+      {
+        internalType: "bool",
+        name: "_bool",
+        type: "bool",
+      },
+    ],
+    name: "whitelistAddressForPrivateArena",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
+    name: "whitelistedAddresses",
+    outputs: [
+      {
+        internalType: "bool",
+        name: "",
+        type: "bool",
+      },
+    ],
+    stateMutability: "view",
     type: "function",
   },
   {
