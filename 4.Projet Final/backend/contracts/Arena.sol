@@ -38,9 +38,11 @@ contract Arena is ERC721URIStorage {
     uint8[] public winners;
     address public creator;
     mapping(uint => uint8) public scores;
+    string public arenaName;
 
-    constructor(uint _entryCost, uint[] memory fixturesIds, bool _isPrivate, address _creator) ERC721("Arena", "ARENA") {
+    constructor(uint _entryCost, uint[] memory fixturesIds, bool _isPrivate, string memory name, address _creator) ERC721("Arena", "ARENA") {
         require(fixturesIds.length > 0 && fixturesIds.length < 10, "Provide between 1 and 10 fixtures");
+        arenaName = name;
         entryCost = _entryCost;
         isPrivate = _isPrivate;
         creator = _creator;
@@ -76,8 +78,8 @@ contract Arena is ERC721URIStorage {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
-    function getArenaInfosData() public view returns (uint, uint, ArenaStatus, uint8[] memory, Fixture[] memory) {
-        return (entryCost, _tokenIds.current() ,status, winners, games);
+    function getArenaInfosData() public view returns (uint, uint, ArenaStatus, uint8[] memory, Fixture[] memory, string memory, address, bool) {
+        return (entryCost, _tokenIds.current(),status, winners, games, arenaName, creator, isPrivate);
     }
 
     function whitelistAddressForPrivateArena(address[] memory _addresses, bool _bool) external onlyCreator {

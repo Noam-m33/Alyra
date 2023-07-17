@@ -20,10 +20,11 @@ describe("Arena", function () {
   async function deployArena(
     cost: BigNumber | number = 10000,
     pokemons = [1, 2],
-    isPrivate = false
+    isPrivate = false,
+    name = "Arena"
   ) {
     const factoryContract = await deployArenasFactory();
-    await factoryContract.createArena(cost, pokemons, isPrivate);
+    await factoryContract.createArena(cost, pokemons, isPrivate, name);
     const arenaAddress = await factoryContract.getArena(1);
     const arenaInstance = await ethers.getContractAt("Arena", arenaAddress);
     [owner, addr1, addr2] = await ethers.getSigners();

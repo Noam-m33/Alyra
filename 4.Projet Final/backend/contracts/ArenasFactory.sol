@@ -10,8 +10,8 @@ contract ArenasFactory {
     event PlayerRegistered(address player, uint arenaId);
     event ArenaCreated(uint arenaId);
  
-    function createArena(uint _entryCost, uint[] memory fixturesId, bool _isPrivate) public returns (Arena) {
-        Arena arena = new Arena(_entryCost, fixturesId, _isPrivate, msg.sender);
+    function createArena(uint _entryCost, uint[] memory fixturesId, bool _isPrivate, string memory name) public returns (Arena) {
+        Arena arena = new Arena(_entryCost, fixturesId, _isPrivate, name, msg.sender);
         arenaCount++;
         arenas[arenaCount] = arena;
         emit ArenaCreated(arenaCount);

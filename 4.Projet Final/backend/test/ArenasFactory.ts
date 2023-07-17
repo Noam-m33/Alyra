@@ -15,13 +15,13 @@ describe("ArenaFactory", function () {
 
   it("should be able to create an arena", async function () {
     const factoryContract = await deployArenasFactory();
-    await factoryContract.createArena(10000, [1, 2], false);
+    await factoryContract.createArena(10000, [1, 2], false, "name");
     expect(await factoryContract.arenaCount()).to.equal(1);
   });
 
   it("should be able to get an arena address", async function () {
     const factoryContract = await deployArenasFactory();
-    await factoryContract.createArena(10000, [1, 2], false);
+    await factoryContract.createArena(10000, [1, 2], false, "name");
     expect(await factoryContract.getArena(1)).match(/^0x[a-fA-F0-9]{40}$/g);
   });
 });
