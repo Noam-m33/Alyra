@@ -13,6 +13,8 @@ contract Marketplace is Ownable, ReentrancyGuard  {
     struct NFT {
         uint id;
         address owner;
+        address nftAddress;
+        uint tokenId;
         uint price;
         bool isSold;
     }
@@ -42,6 +44,8 @@ contract Marketplace is Ownable, ReentrancyGuard  {
         listedNFTs[currentId] = NFT({
             id: currentId,
             owner: msg.sender,
+            nftAddress: nftAddress,
+            tokenId: tokenId,
             price: price,
             isSold: false
         });
@@ -62,8 +66,8 @@ contract Marketplace is Ownable, ReentrancyGuard  {
         require(listedNFTs[id].price == msg.value, "The price is not equal to the value sent");
         listedNFTs[id].isSold = true;
         balances[listedNFTs[id].owner] = balances[listedNFTs[id].owner] + (msg.value * (100 - marketplaceFee) / 100);
-        IERC721 nftContract = IERC721(msg.sender);
-        nftContract.safeTransferFrom(listedNFTs[id].owner, msg.sender, id);
+        IERC721 nftContract = IERC721(listedNFTs[id].nftAddress);
+        nftContract.safeTransferFrom(listedNFTs[id].owner, msg.sender, listedNFTs[id].tokenId);
         emit NFTSold(id, listedNFTs[id].owner, msg.sender, msg.value);
     }
 
