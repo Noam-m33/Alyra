@@ -169,7 +169,7 @@ describe("Marketplace", function () {
     );
     await expect(
       marketplaceContract.connect(addr1).withdrawFees()
-    ).to.be.revertedWith("You are not the owner");
+    ).to.be.revertedWith("Ownable: caller is not the owner");
   });
 
   it("should be able to widhrwaw the fees", async function () {
