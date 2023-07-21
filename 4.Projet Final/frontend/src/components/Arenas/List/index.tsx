@@ -23,6 +23,7 @@ import { ethers } from "ethers";
 import { decodeEventLog, parseAbiItem } from "viem";
 import { useArenas } from "../../../context/Arenas";
 import CardItem from "./CardItem";
+import { ArenaType } from "../../../utils/types";
 
 const data = [
   {
@@ -62,14 +63,16 @@ const data = [
 
 interface ArenaListProps {
   setDisplayForm: (value: boolean) => void;
+  setDisplayDetailsContract: (contract: ArenaType) => void;
 }
 
-export function ArenaList({ setDisplayForm }: ArenaListProps) {
+export function ArenaList({
+  setDisplayForm,
+  setDisplayDetailsContract,
+}: ArenaListProps) {
   const { isConnected } = useAccount();
   const publicClient = usePublicClient({ chainId: 31337 });
   const { arenas, loadings, arenaCount } = useArenas();
-  console.log(arenas);
-  console.log(loadings);
   return (
     <Stack>
       <Stack direction={"row"} justifyContent={"space-between"}>
@@ -87,7 +90,11 @@ export function ArenaList({ setDisplayForm }: ArenaListProps) {
       {arenas.length ? (
         <SimpleGrid columns={2} gap={3} mt={3}>
           {arenas.map((arena, i) => (
-            <CardItem key={i} contract={arena} />
+            <CardItem
+              key={i}
+              contract={arena}
+              setDisplayDetailsContract={setDisplayDetailsContract}
+            />
           ))}
         </SimpleGrid>
       ) : (

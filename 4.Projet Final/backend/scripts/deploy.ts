@@ -1,3 +1,4 @@
+import { parseUnits } from "ethers/lib/utils";
 import { ArenasFactory } from "../typechain-types";
 
 const hre = require("hardhat");
@@ -10,7 +11,7 @@ async function main() {
   console.log("ArenasFactory deployed to:", deployed.address);
 
   const createGenesisArenaTx = await ArenasFactoryContract.createArena(
-    10000,
+    "100000000000000000",
     [1, 2],
     false,
     "Genesis Arena"

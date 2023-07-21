@@ -7,7 +7,13 @@ import { useAccount, useContractRead, useContractWrite } from "wagmi";
 import { arenaAbi } from "../../../utils/abi";
 import { useToast } from "@chakra-ui/toast";
 
-export default function CardItem({ contract }: { contract: ArenaType }) {
+export default function CardItem({
+  contract,
+  setDisplayDetailsContract,
+}: {
+  contract: ArenaType;
+  setDisplayDetailsContract: (contract: ArenaType) => void;
+}) {
   const toast = useToast();
   const account = useAccount();
   const { write } = useContractWrite({
@@ -43,7 +49,6 @@ export default function CardItem({ contract }: { contract: ArenaType }) {
     functionName: "balanceOf",
     args: [account.address],
   });
-  console.log(data, "data", error, "error");
 
   return (
     <Stack
@@ -74,7 +79,7 @@ export default function CardItem({ contract }: { contract: ArenaType }) {
         <Text fontWeight={"semibold"}>{contract.entryCost}</Text>
       </Stack>
       <Stack direction={"row"} justifyContent={"center"}>
-        <Button>
+        <Button onClick={() => setDisplayDetailsContract(contract)}>
           <Text>View Details 👀</Text>
         </Button>
         {contract.isPrivate ? (
