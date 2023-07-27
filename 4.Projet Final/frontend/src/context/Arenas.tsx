@@ -18,6 +18,7 @@ type ArenasContextType = {
   createdArenasAddresses: string[];
   arenas: ArenaType[];
   loadings: { arenas: boolean };
+  setArenaDataIsUpToDate: (value: boolean) => void;
 };
 
 export const ArenasContext = createContext<ArenasContextType | null>(null);
@@ -32,6 +33,7 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
     string[]
   >([]);
   const [arenas, setArenas] = useState<ArenaType[]>([]);
+  const [arenaDataIsUpToDate, setArenaDataIsUpToDate] = useState(false);
 
   const { data: arenasCountNotFormatted } = useContractRead({
     address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
@@ -39,7 +41,6 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
     functionName: "arenaCount",
     watch: true,
   });
-  console.log(arenasCountNotFormatted);
 
   useEffect(() => {
     if (BigNumber.from(arenasCountNotFormatted as string).toNumber() === 0) {
@@ -92,6 +93,8 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
+    if (arenaDataIsUpToDate) return;
+    if (createdArenasAddresses.length === 0) return;
     createdArenasAddresses.map((address) => {
       if (arenas.find((e) => e.address === address)) return;
       publicClient
@@ -120,12 +123,11 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
             string,
             boolean
           ];
-          console.log(Number(utils.formatEther(entryCost)));
           const data: Omit<ArenaType, "address"> = {
             entryCost: Number(utils.formatEther(entryCost)),
             participantsNumber: BigNumber.from(participantsNumber).toNumber(),
             status,
-            winners: winners.map((e) => e.toNumber()),
+            winners: winners.map((e) => BigNumber.from(e).toNumber()),
             games: games.map((e) => ({
               id: BigNumber.from(e.id).toNumber(),
               state: e.state,
@@ -140,12 +142,14 @@ export const ArenasProvider = ({ children }: { children: ReactNode }) => {
         .catch(console.error);
     });
     setLoadings((prev) => ({ ...prev, arenas: false }));
-  }, [createdArenasAddresses]);
+    setArenaDataIsUpToDate(true);
+  }, [createdArenasAddresses, arenaDataIsUpToDate]);
 
   return (
     <ArenasContext.Provider
       value={{
         createdArenasAddresses,
+        setArenaDataIsUpToDate,
         arenaCount,
         arenas,
         loadings,
