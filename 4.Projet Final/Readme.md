@@ -18,7 +18,7 @@ GenesisArena => https://sepolia.etherscan.io/tx/0xa875f8e9c0a283de3216bd3a77f701
 
 ## Lauch App
 
-# Front end
+### Front end
 
 Front end is deployed here : https://alyra-xi.vercel.app/
 
@@ -27,7 +27,7 @@ or run locally
 `yarn`
 `yarn dev`
 
-# backend
+### backend
 
 Run the hardhat blockchain
 `npx hardhat node`
@@ -38,3 +38,6 @@ Run the deployment script
 ## Test
 
 Des tests fonctionnelles sur les 3 contrats se rapprochent des 100% de coverage
+
+
+<img width="572" alt="Capture d’écran 2023-07-27 à 16 51 26" src="https://github.com/Noam-m33/Alyra/assets/70531041/e143eb2c-ae7f-4469-afb9-12270205c2df">
