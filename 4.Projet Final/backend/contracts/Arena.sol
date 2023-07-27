@@ -36,6 +36,7 @@ contract Arena is ERC721URIStorage {
     Fixture[] public games;
     ArenaStatus public status;
     uint8[] public winners;
+    uint8[] public alreadyClaimed;
     address public creator;
     mapping(uint => uint8) public scores;
     string public arenaName;
@@ -158,6 +159,9 @@ contract Arena is ERC721URIStorage {
 
     function claim(uint8 tokenId) external onlyCurrentNFTOwner(tokenId)  {
         require(status == ArenaStatus.ClaimSessionOpen, "You can only claim when the claim session is open");
+        for(uint8 i = 0; i < alreadyClaimed.length; i++) {
+            require(alreadyClaimed[i] != tokenId, "You have already claimed");
+        }
         bool isWinner = false;
         for(uint8 i = 0; i < winners.length; i++) {
             if(tokenId == winners[i]) {
