@@ -9,7 +9,6 @@ import {
 } from "react";
 import { useContractEvent, useContractRead, usePublicClient } from "wagmi";
 import { arenaAbi, arenaFactoryAbi } from "../utils/abi";
-import { parseAbiItem } from "viem";
 import { BigNumber, utils } from "ethers";
 import { ArenaType } from "../utils/types";
 

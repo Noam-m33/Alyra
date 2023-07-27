@@ -1,5 +1,4 @@
 import { Stack, Text } from "@chakra-ui/layout";
-import React from "react";
 import { Profile } from "./Profile";
 
 export default function Header() {

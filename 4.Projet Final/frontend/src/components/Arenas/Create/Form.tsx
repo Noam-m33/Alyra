@@ -3,25 +3,18 @@ import { FormControl, FormLabel } from "@chakra-ui/form-control";
 import { Input } from "@chakra-ui/input";
 import { Grid, GridItem, Stack, Text } from "@chakra-ui/layout";
 import { useForm } from "react-hook-form";
-import {
-  useChainId,
-  useContractEvent,
-  useContractWrite,
-  useTransaction,
-} from "wagmi";
+import { useContractEvent, useContractWrite } from "wagmi";
 import { arenaFactoryAbi } from "../../../utils/abi";
 import { useEffect, useState } from "react";
 import { useToast } from "@chakra-ui/toast";
 import { ethers } from "ethers";
-import { Tab, TabList, TabPanel, TabPanels, Tabs } from "@chakra-ui/tabs";
+import { Tab, TabList, Tabs } from "@chakra-ui/tabs";
 import moment from "moment";
 import axios from "axios";
-import { cp } from "fs";
 import { FixturesResponseData } from "../../../utils/types";
 import { Card } from "@chakra-ui/card";
 import { Image } from "@chakra-ui/image";
 import { Skeleton } from "@chakra-ui/skeleton";
-import { Checkbox } from "@chakra-ui/checkbox";
 import { Switch } from "@chakra-ui/switch";
 
 export default function Form() {
@@ -32,11 +25,11 @@ export default function Form() {
   const [loading, setLoading] = useState(false);
   const [selectedFixture, setSelectedFixture] = useState<number[]>();
 
-  const { data, write } = useContractWrite({
+  const { write } = useContractWrite({
     address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
     abi: arenaFactoryAbi,
     functionName: "createArena",
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "You have successfully created the arena",
@@ -190,7 +183,7 @@ export default function Form() {
           gap={5}
         >
           {loading &&
-            [...new Array(100)].map((_, i) => (
+            [...new Array(100)].map((_) => (
               <GridItem w={"100%"}>
                 <Card direction={"row"} p={2} gap={5} borderRadius={"md"}>
                   <Skeleton height="20px" />

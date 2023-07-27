@@ -32,7 +32,7 @@ export default function CardItem({
         isClosable: true,
       });
     },
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       toast({
         title: "Success",
         description: "You have successfully joined the arena",
@@ -43,7 +43,7 @@ export default function CardItem({
     },
   });
 
-  const { data, error } = useContractRead({
+  const { data } = useContractRead({
     address: contract.address as `0x${string}`,
     abi: arenaAbi,
     functionName: "balanceOf",

@@ -1,7 +1,7 @@
 import { ArenaType } from "../../../utils/types";
 import { Stack, Text } from "@chakra-ui/layout";
 import { Image } from "@chakra-ui/image";
-import { BigNumber, ethers, utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { Button, IconButton } from "@chakra-ui/button";
 import {
   useAccount,
@@ -16,9 +16,6 @@ import { ChevronLeftIcon } from "@chakra-ui/icons";
 import { useEffect, useState } from "react";
 import { getAddress } from "@ethersproject/address";
 import axios from "axios";
-import moment from "moment";
-import { Input } from "@chakra-ui/input";
-import { encodeAbiParameters } from "viem";
 import { useArenas } from "../../../context/Arenas";
 
 export default function Details({
@@ -118,7 +115,7 @@ export default function Details({
         isClosable: true,
       });
     },
-    onSuccess: (data: any) => {
+    onSuccess: () => {
       setArenaDataIsUpToDate(false);
       toast({
         title: "Success",
@@ -161,7 +158,7 @@ export default function Details({
     },
   });
 
-  const { data, error } = useContractRead({
+  const { data } = useContractRead({
     address: contract.address as `0x${string}`,
     abi: arenaAbi,
     functionName: "balanceOf",
@@ -239,7 +236,8 @@ export default function Details({
     eventName: "WinnersSet",
     listener(log) {
       console.log(log, "log");
-      setWinnersState(log[0].args.winners || []);
+      const data = (log[0] as unknown as { args: { winners: number[] } }).args;
+      setWinnersState((data.winners as []) || []);
     },
   });
 
