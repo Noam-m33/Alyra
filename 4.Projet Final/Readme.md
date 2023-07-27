@@ -4,7 +4,8 @@ Gamble arena est un projet de paris sportifs pair-to-pair dans lequel des partic
 
 Plus de détails sur le litepaper
 
-// Lien du whitepaper
+[Litepaper-GambleArena.pdf](https://github.com/Noam-m33/Alyra/files/12184563/Litepaper-GambleArena.1.pdf)
+
 
 ## Demo
 
