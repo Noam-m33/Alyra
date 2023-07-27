@@ -7,7 +7,6 @@ contract ArenasFactory {
    mapping(uint => Arena) arenas;
    uint public arenaCount;
 
-    event PlayerRegistered(address player, uint arenaId);
     event ArenaCreated(uint arenaId);
  
     function createArena(uint _entryCost, uint[] memory fixturesId, bool _isPrivate, string memory name) public returns (Arena) {

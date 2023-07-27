@@ -60,7 +60,7 @@ contract Marketplace is Ownable, ReentrancyGuard  {
         emit CancelListing(id, msg.sender);
     }
 
-    function buy(uint id) external payable nonReentrant {
+    function buy(uint id) external payable nonReentrant() {
         require(listedNFTs[id].isSold == false, "This NFT is already sold");
         require(listedNFTs[id].owner != msg.sender, "You are the owner of this NFT");
         require(listedNFTs[id].price == msg.value, "The price is not equal to the value sent");
