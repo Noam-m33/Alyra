@@ -117,7 +117,7 @@ contract Arena is ERC721URIStorage {
         emit BetPlaced(msg.sender, pronos);
     }
 
-    function setFixturesResult(Fixture[] memory fixturesResult) external {
+    function setFixturesResult(Fixture[] memory fixturesResult) external onlyCreator {
         require(status == ArenaStatus.Closed, "You can only set the result if the arena is closed");
         require(fixturesResult.length == games.length, "You must set the result for all fixtures");
         for(uint8 i = 0; i < fixturesResult.length; i++) {
