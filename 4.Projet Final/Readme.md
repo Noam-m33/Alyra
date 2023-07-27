@@ -6,7 +6,6 @@ Plus de détails sur le litepaper
 
 [Litepaper-GambleArena.pdf](https://github.com/Noam-m33/Alyra/files/12184563/Litepaper-GambleArena.1.pdf)
 
-
 ## Demo
 
 Vous retrouvez une démo du projet via ce lien :
@@ -16,6 +15,25 @@ https://www.loom.com/share/0dd3096596c448bb8ac08f8fc72f933e
 
 ArenaFactory => https://sepolia.etherscan.io/tx/0x602ced4d72077814ef32653897ae638d545704d97c5bcdd24f4e5426f09d4660
 GenesisArena => https://sepolia.etherscan.io/tx/0xa875f8e9c0a283de3216bd3a77f701c5a1561cd65cb32b3d9498db3e78990611
+
+## Lauch App
+
+# Front end
+
+Front end is deployed here : https://alyra-xi.vercel.app/
+
+or run locally
+
+`yarn`
+`yarn dev`
+
+# backend
+
+Run the hardhat blockchain
+`npx hardhat node`
+
+Run the deployment script
+`npx hardhat run --network localhost scripts/deploy.ts`
 
 ## Test
 
